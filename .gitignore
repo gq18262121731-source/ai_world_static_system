@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.venv*/
+venv/
+*.egg-info/
+
+# 密钥文件：任意层级的 .env 都不入库，只保留 .env.example
+.env
+.env.*
+!.env.example
+!**/.env.example
+
+# 本地数据与生成物
+backend/.env
+backend/*.db
+*.db
+backend/media/
+*.log
+*.err
+*.pid
+.runtime/
+/(3
+
+# Node
+node_modules/
+dist/
+.vite/
+
+# 编辑器与系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,213 @@
+/**
+ * 交互动效系统。
+ *
+ * 所有可点击元素共用一套物理化反馈：悬停抬起、按下回弹、点击涟漪。
+ * 缓动用 linear() 近似弹簧曲线，比 cubic-bezier 更接近真实的质量与阻尼感。
+ */
+
+:root {
+  /* 柔和弹簧：轻微过冲后稳定，用于位移与缩放 */
+  --spring: linear(
+    0, 0.006, 0.025 2.8%, 0.101 6.1%, 0.539 18.9%, 0.721 25.3%, 0.849 31.5%,
+    0.937 38.1%, 0.968 41.8%, 0.991 45.7%, 1.006 50.1%, 1.015 55%, 1.017 63.9%,
+    1.001 100%
+  );
+  /* 快弹：用于按下松开的瞬间反馈 */
+  --spring-snap: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  --dur-fast: 0.16s;
+  --dur: 0.28s;
+  --dur-slow: 0.5s;
+}
+
+/* ---------- 可按压：所有按钮类元素的统一手感 ---------- */
+
+.pressable,
+.el-button,
+.el-tag.is-clickable,
+.el-pagination button,
+.el-tabs__item,
+.el-menu-item,
+.el-checkbox,
+.el-radio {
+  transition:
+    transform var(--dur-fast) var(--spring-snap),
+    box-shadow var(--dur) var(--ease-out),
+    background-color var(--dur) var(--ease-out),
+    border-color var(--dur) var(--ease-out),
+    color var(--dur) var(--ease-out);
+}
+
+.pressable:active,
+.el-button:not(.is-disabled):active,
+.el-tabs__item:active {
+  transform: translateY(1px) scale(0.975);
+}
+
+.el-button:not(.is-disabled):not(.is-link):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(75, 68, 57, 0.14);
+}
+
+/* 快捷短语这类可点标签，悬停时抬起并染上主色 */
+.el-tag.phrase {
+  cursor: pointer;
+}
+
+.el-tag.phrase:hover {
+  transform: translateY(-2px);
+  border-color: var(--brand);
+  color: var(--brand-deep);
+  background: var(--brand-soft);
+}
+
+.el-button--primary:not(.is-disabled):hover {
+  box-shadow: 0 8px 20px rgba(47, 158, 147, 0.32);
+}
+
+/* ---------- 可抬起的卡片 ---------- */
+
+.liftable {
+  transition:
+    transform var(--dur) var(--spring),
+    box-shadow var(--dur) var(--ease-out),
+    border-color var(--dur) var(--ease-out);
+  will-change: transform;
+}
+
+.liftable:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--brand-soft);
+}
+
+.liftable:active {
+  transform: translateY(-1px) scale(0.995);
+}
+
+/* ---------- 点击涟漪（配合 v-ripple 指令） ---------- */
+
+.ripple-host {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple-ink {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  background: currentColor;
+  opacity: 0.18;
+  pointer-events: none;
+  animation: ripple-spread 0.62s var(--ease-out) forwards;
+}
+
+@keyframes ripple-spread {
+  to {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+/* ---------- 焦点可见性：键盘操作时才出现 ---------- */
+
+:focus-visible {
+  outline: 3px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* ---------- 入场：错落浮现 ---------- */
+
+.rise {
+  animation: rise-in 0.55s var(--spring) both;
+}
+
+.rise-stagger > * {
+  animation: rise-in 0.55s var(--spring) both;
+}
+
+.rise-stagger > *:nth-child(1) { animation-delay: 0.02s; }
+.rise-stagger > *:nth-child(2) { animation-delay: 0.07s; }
+.rise-stagger > *:nth-child(3) { animation-delay: 0.12s; }
+.rise-stagger > *:nth-child(4) { animation-delay: 0.17s; }
+.rise-stagger > *:nth-child(5) { animation-delay: 0.22s; }
+.rise-stagger > *:nth-child(6) { animation-delay: 0.27s; }
+.rise-stagger > *:nth-child(7) { animation-delay: 0.32s; }
+.rise-stagger > *:nth-child(8) { animation-delay: 0.37s; }
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- 数值变化时的强调 ---------- */
+
+.value-flash {
+  animation: value-pop 0.7s var(--spring);
+}
+
+@keyframes value-pop {
+  0% {
+    transform: scale(1);
+  }
+  32% {
+    transform: scale(1.13);
+    color: var(--brand);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* ---------- 呼吸指示点 ---------- */
+
+.breathing {
+  position: relative;
+}
+
+.breathing::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border-radius: inherit;
+  border: 2px solid currentColor;
+  opacity: 0;
+  animation: breathe 2.6s var(--ease-out) infinite;
+}
+
+@keyframes breathe {
+  0% {
+    opacity: 0.45;
+    transform: scale(0.86);
+  }
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(1.35);
+  }
+}
+
+/* ---------- 尊重系统的减少动效偏好 ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .liftable:hover,
+  .el-button:hover {
+    transform: none;
+  }
+}

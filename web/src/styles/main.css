@@ -1,0 +1,428 @@
+/**
+ * 设计基调：温暖的适老化医疗风格。
+ * 画布用奶油米色而非冷白，阴影带暖棕调，主色取沉稳青绿（健康、安心），
+ * 暖橙作强调色。圆角与字号都比常规后台更大，照顾阅读舒适度。
+ */
+
+:root {
+  /* 主色：青绿 = 健康与安全 */
+  --brand: #2f9e93;
+  --brand-deep: #248077;
+  --brand-soft: #e4f2f0;
+  --brand-tint: #f2f9f8;
+
+  /* 强调色：暖橙 = 关怀与提醒 */
+  --accent: #e08240;
+  --accent-soft: #fceee2;
+
+  --ok: #3aa76d;
+  --ok-soft: #e7f4ed;
+  --warn: #d99a3c;
+  --warn-soft: #fbf1e0;
+  --danger: #d4605a;
+  --danger-soft: #fbeceb;
+
+  /* 中性色：暖调而非冷灰。
+     次级文字（--ink-mid / --ink-soft）刻意压得比常规后台深：
+     使用者多为社区值守人员和老人家属，"又小又灰"的辅助文字在现场根本看不清，
+     --ink-soft 在奶油底上的对比度保持在 4.5:1 以上 */
+  --canvas: #f7f3ec;
+  --surface: #ffffff;
+  --surface-tint: #fcfaf6;
+  --ink: #26302b;
+  --ink-mid: #414c46;
+  --ink-soft: #5d6862;
+  --line: #ebe5db;
+  --line-soft: #f3efe7;
+
+  /* 暖棕调阴影，避免冷灰带来的“临床感” */
+  --shadow-sm: 0 1px 2px rgba(75, 68, 57, 0.05);
+  --shadow: 0 2px 10px rgba(75, 68, 57, 0.07);
+  --shadow-lg: 0 10px 30px rgba(75, 68, 57, 0.12);
+
+  --radius-lg: 18px;
+  --radius: 14px;
+  --radius-sm: 10px;
+  --radius-pill: 999px;
+
+  /* 兼容旧变量名 */
+  --bg: var(--canvas);
+
+  /* Element Plus 主题覆盖 */
+  --el-color-primary: #2f9e93;
+  --el-color-primary-light-3: #6dbbb3;
+  --el-color-primary-light-5: #97cfc9;
+  --el-color-primary-light-7: #c0e2df;
+  --el-color-primary-light-8: #d5ece9;
+  --el-color-primary-light-9: #eaf5f4;
+  --el-color-primary-dark-2: #267e76;
+
+  --el-color-success: #3aa76d;
+  --el-color-success-light-3: #75c199;
+  --el-color-success-light-5: #9dd3b6;
+  --el-color-success-light-7: #c4e4d3;
+  --el-color-success-light-8: #d8ede2;
+  --el-color-success-light-9: #ebf6f0;
+  --el-color-success-dark-2: #2e8657;
+
+  --el-color-warning: #d99a3c;
+  --el-color-warning-light-3: #e5b877;
+  --el-color-warning-light-5: #eccd9e;
+  --el-color-warning-light-7: #f4e1c5;
+  --el-color-warning-light-8: #f7ebd8;
+  --el-color-warning-light-9: #fbf5ec;
+  --el-color-warning-dark-2: #ae7b30;
+
+  --el-color-danger: #d4605a;
+  --el-color-danger-light-3: #e2908c;
+  --el-color-danger-light-5: #eab0ad;
+  --el-color-danger-light-7: #f2cfcd;
+  --el-color-danger-light-8: #f6dfde;
+  --el-color-danger-light-9: #fbefee;
+  --el-color-danger-dark-2: #aa4d48;
+  --el-color-error: var(--el-color-danger);
+  --el-color-error-light-9: var(--el-color-danger-light-9);
+
+  /* info 色用在"无数据""离线"这类标签上，太浅就成了看不见的灰字 */
+  --el-color-info: #66716b;
+  --el-color-info-light-3: #939c97;
+  --el-color-info-light-5: #b3bab6;
+  --el-color-info-light-7: #d3d8d5;
+  --el-color-info-light-8: #e3e6e4;
+  --el-color-info-light-9: #f1f2f1;
+  --el-color-info-dark-2: #525b56;
+
+  --el-text-color-primary: #26302b;
+  --el-text-color-regular: #414c46;
+  --el-text-color-secondary: #5d6862;
+  --el-text-color-placeholder: #8a938d;
+  --el-border-color: #ebe5db;
+  --el-border-color-light: #f0ebe2;
+  --el-border-color-lighter: #f3efe7;
+  --el-fill-color-light: #f7f3ec;
+  --el-fill-color-lighter: #fbf8f3;
+  --el-bg-color: #ffffff;
+  --el-bg-color-page: #f7f3ec;
+  --el-border-radius-base: 10px;
+  --el-font-size-base: 16px;
+  --el-font-size-small: 15px;
+  --el-font-size-extra-small: 14px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--canvas);
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.65;
+  font-family: 'PingFang SC', 'HarmonyOS Sans SC', 'Microsoft YaHei', 'Helvetica Neue',
+    Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- 页面骨架 ---------- */
+
+.page {
+  padding: 22px 24px 32px;
+  max-width: 1560px;
+  margin: 0 auto;
+}
+
+.page-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.page-subtitle {
+  color: var(--ink-soft);
+  font-size: 15.5px;
+  margin: 6px 0 0;
+}
+
+/* ---------- 卡片 ---------- */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.25s ease;
+}
+
+.card:hover {
+  box-shadow: var(--shadow);
+}
+
+.card + .card {
+  margin-top: 18px;
+}
+
+.card-title {
+  font-size: 17px;
+  font-weight: 600;
+  margin: 0 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+/* 标题左侧的小竖条，弱化但保留层级感 */
+.card-title::before {
+  content: '';
+  width: 3px;
+  height: 15px;
+  border-radius: 2px;
+  background: var(--brand);
+  flex-shrink: 0;
+}
+
+/* 辅助说明文字：颜色比正文浅一档但仍是深灰，字号不小于 15px */
+.muted {
+  color: var(--ink-soft);
+  font-size: 15px;
+}
+
+/* ---------- 栅格 ---------- */
+
+.grid {
+  display: grid;
+  gap: 18px;
+}
+
+.grid-4 {
+  grid-template-columns: repeat(auto-fit, minmax(206px, 1fr));
+}
+
+.grid-2 {
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+}
+
+/* ---------- 状态色 ---------- */
+
+.status-normal {
+  color: var(--ok);
+}
+
+.status-warning {
+  color: var(--warn);
+}
+
+.status-danger {
+  color: var(--danger);
+}
+
+.reason-list {
+  margin: 0;
+  padding-left: 19px;
+  line-height: 2;
+}
+
+.speech-bubble {
+  background: linear-gradient(135deg, var(--brand-soft), var(--brand-tint));
+  border-left: 3px solid var(--brand);
+  border-radius: 4px var(--radius) var(--radius) 4px;
+  padding: 12px 15px;
+  line-height: 1.85;
+}
+
+/* ---------- Element Plus 细节调整 ---------- */
+
+.el-table {
+  --el-table-border-color: var(--line-soft);
+  --el-table-header-bg-color: var(--surface-tint);
+  --el-table-row-hover-bg-color: var(--brand-tint);
+  --el-table-text-color: var(--ink);
+  --el-table-header-text-color: var(--ink-mid);
+  font-size: 15.5px;
+}
+
+/* size="small" 的表格只收紧行高，字号不再跟着缩 */
+.el-table--small {
+  font-size: 15px;
+}
+
+/* 表格行悬停时左侧透出一道主色，比整行变色更克制 */
+.el-table__body tr td:first-child {
+  position: relative;
+}
+
+.el-table__body tr:hover td:first-child::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--brand);
+}
+
+.el-table th.el-table__cell {
+  font-weight: 600;
+  color: var(--ink-mid);
+}
+
+.el-table .cell {
+  word-break: break-word;
+  line-height: 1.7;
+}
+
+.el-button {
+  border-radius: var(--radius-pill);
+  font-weight: 500;
+}
+
+/* Element 的小号按钮固定 12px 字，对老年照护场景太小 */
+.el-button--small {
+  font-size: 14px;
+  --el-button-size: 30px;
+}
+
+.el-button.is-link {
+  border-radius: 4px;
+}
+
+.el-tag {
+  border-radius: var(--radius-pill);
+  font-weight: 500;
+  --el-tag-font-size: 14px;
+}
+
+.el-tag.el-tag--small {
+  --el-tag-font-size: 13.5px;
+  height: 24px;
+  padding: 0 9px;
+}
+
+.el-input__wrapper,
+.el-textarea__inner,
+.el-select__wrapper {
+  border-radius: var(--radius-sm);
+}
+
+/* 小号输入框和下拉框的文字也固定在 12px，统一抬到 14px */
+.el-input--small .el-input__inner,
+.el-select--small .el-select__wrapper,
+.el-select--small .el-select__selected-item,
+.el-select--small .el-select__placeholder,
+.el-input-number--small .el-input__inner {
+  font-size: 14px;
+}
+
+/* 表格里的标签不能被省略号截断 */
+.el-table .cell .el-tag {
+  max-width: none;
+}
+
+.el-card,
+.el-drawer,
+.el-dialog {
+  border-radius: var(--radius-lg);
+}
+
+.el-alert {
+  border-radius: var(--radius);
+  padding: 12px 16px;
+}
+
+.el-alert .el-alert__title {
+  font-size: 15.5px;
+  line-height: 1.5;
+}
+
+.el-alert .el-alert__description {
+  font-size: 14.5px;
+  line-height: 1.6;
+}
+
+.el-tabs__item {
+  font-size: 16px;
+}
+
+.el-form-item__label,
+.el-radio__label,
+.el-checkbox__label,
+.el-select-dropdown__item,
+.el-dropdown-menu__item,
+.el-descriptions__label,
+.el-descriptions__content {
+  font-size: 15px;
+}
+
+.el-timeline-item__timestamp {
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+
+/* 选中标签用胶囊底色，配合下方指示条 */
+.el-tabs__item.is-active {
+  font-weight: 600;
+}
+
+.el-select__wrapper:hover,
+.el-input__wrapper:hover {
+  box-shadow: 0 0 0 1px var(--brand-light, var(--el-color-primary-light-5)) inset;
+}
+
+/* 抽屉与弹窗入场带轻微上浮 */
+.el-drawer,
+.el-dialog {
+  box-shadow: var(--shadow-lg);
+}
+
+.el-popover.el-popper {
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+}
+
+.el-empty__description {
+  color: var(--ink-soft);
+}
+
+.el-empty__description p {
+  font-size: 15px;
+}
+
+/* 滚动条也换成暖调 */
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ddd6ca;
+  border-radius: var(--radius-pill);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #cbc3b4;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}

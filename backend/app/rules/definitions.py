@@ -1,0 +1,312 @@
+"""外出评估的默认阈值定义。
+
+每一项都可以在后台按"全局"或"某位老人"两级覆盖(rule_config 表),
+个性化配置优先于全局配置。
+"""
+
+from typing import Any
+
+DEFAULT_RULES: dict[str, dict[str, Any]] = {
+    "heart_rate": {
+        "warn_min": 50,
+        "warn_max": 100,
+        "block_min": 45,
+        "block_max": 120,
+        "_desc": "静息心率区间(次/分)，超出禁止区间则不允许外出",
+    },
+    "spo2": {
+        "warn_min": 94,
+        "block_min": 90,
+        "_desc": "血氧饱和度(%)，低于禁止下限则不允许外出",
+    },
+    "blood_pressure": {
+        "systolic_warn_max": 140,
+        "systolic_block_max": 165,
+        "systolic_warn_min": 95,
+        "systolic_block_min": 85,
+        "diastolic_warn_max": 90,
+        "diastolic_block_max": 105,
+        "_desc": "收缩压与舒张压的安全区间(mmHg)",
+    },
+    "temperature": {
+        "warn_max": 37.3,
+        "block_max": 38.0,
+        "block_min": 35.5,
+        "_desc": "体温安全区间(℃)，发热或体温过低都会拦截外出",
+    },
+    "sleep": {
+        "warn_min_hours": 5.5,
+        "_desc": "昨夜睡眠时长低于该值提示疲劳风险",
+    },
+    "outing_frequency": {
+        "max_per_day": 3,
+        "warn_per_day": 2,
+        "max_per_week": 14,
+        "min_interval_minutes": 45,
+        "_desc": "限制每天每周的外出次数，以及两次外出之间的休息时间",
+    },
+    "time_window": {
+        "start": "06:00",
+        "end": "18:30",
+        "warn_before": "07:00",
+        "warn_after": "17:30",
+        "_desc": "允许外出的时间段，时段之外一律不建议出门",
+    },
+    "device_battery": {
+        "watch_block_min": 15,
+        "watch_warn_min": 30,
+        "dog_block_min": 25,
+        "dog_warn_min": 40,
+        "_desc": "手表与机器狗的电量下限，电量不足无法保障外出安全",
+    },
+    "device_online": {
+        "require_watch": True,
+        "require_dog": True,
+        "_desc": "外出必须保证手表与机器狗在线",
+    },
+    "fall_history": {
+        "block_lookback_hours": 24,
+        "warn_lookback_hours": 72,
+        "_desc": "近期发生过跌倒时，先观察恢复情况再考虑外出",
+    },
+    "data_freshness": {
+        "block_max_age_minutes": 180,
+        "warn_max_age_minutes": 45,
+        "_desc": "手表数据太久没更新时，无法判断当前身体状况",
+    },
+    "weather": {
+        # 按关键词包含匹配, 因此"暴雨"同时覆盖大暴雨、特大暴雨等组合描述
+        "block_conditions": [
+            "暴雨",
+            "大雨",
+            "极端降雨",
+            "雷暴",
+            "雷阵雨",
+            "台风",
+            "大雪",
+            "冰雹",
+            "暴雪",
+            "冻雨",
+            "沙尘暴",
+        ],
+        "warn_conditions": [
+            "小雨",
+            "中雨",
+            "阵雨",
+            "雨夹雪",
+            "小雪",
+            "中雪",
+            "雾",
+            "霾",
+            "大风",
+            "扬沙",
+            "浮尘",
+        ],
+        "block_temp_min": 0,
+        "block_temp_max": 37,
+        "warn_temp_min": 5,
+        "warn_temp_max": 33,
+        "warn_aqi": 150,
+        "block_aqi": 250,
+        "_desc": "恶劣天气、极端气温与重度污染时限制外出",
+    },
+    "outing_limits": {
+        "base_duration_minutes": 45,
+        "base_radius_m": 800,
+        "min_duration_minutes": 15,
+        "min_radius_m": 300,
+        "warn_penalty_ratio": 0.25,
+        "_desc": "外出时长与活动半径的基准值，每命中一条风险提醒就按比例收紧",
+    },
+    "health_trend": {
+        "warn_risk_score": 45,
+        "block_risk_score": 80,
+        "_desc": "综合健康风险评分的提醒线与禁止线",
+    },
+    "health_score": {
+        "block_below": 45,
+        "warn_below": 60,
+        "_desc": "当日健康评分（0~100，越高越好）低于禁止线不允许外出，低于提醒线收紧限制",
+    },
+    "weather_alerts": {
+        # 和风天气的预警颜色代码: blue / yellow / orange / red
+        "block_colors": ["orange", "red"],
+        "warn_colors": ["yellow"],
+        "_desc": "官方气象预警（暴雨、雷电、大风、高温、寒潮、台风、暴雪、大雾等）按颜色分级处理",
+    },
+    "forecast": {
+        "lookahead_buffer_minutes": 15,
+        "block_precip_prob": 60,
+        "block_precip_mm": 2.5,
+        "warn_precip_prob": 40,
+        "warn_precip_mm": 0.2,
+        "_desc": "看外出时段内（建议时长加缓冲）的逐小时预报与分钟级降水：中雨以上拦截，小雨缩短时长并提醒带伞",
+    },
+    "feels_like": {
+        "block_min": 0,
+        "block_max": 35,
+        "warn_min": 5,
+        "warn_max": 32,
+        "muggy_temp": 30,
+        "muggy_humidity": 70,
+        "_desc": "体感温度比气温更能反映老人的实际负担；高温叠加高湿度提示中暑风险",
+    },
+    "wind": {
+        "block_level": 6,
+        "block_level_limited_mobility": 5,
+        "warn_level": 4,
+        "_desc": "风力等级：行动不便的老人承受能力更低，禁止线相应下调",
+    },
+    "sun_uv": {
+        "warn_uv_index": 7,
+        "uv_start": "10:00",
+        "uv_end": "14:00",
+        "warn_visibility_m": 500,
+        "sunset_margin_minutes": 30,
+        "_desc": "正午强紫外线与低能见度提醒；日落前多少分钟应该到家（只作提醒，不拦截）",
+    },
+    "life_indices": {
+        "warn_cold_level": 3,
+        "warn_sport_categories": ["不宜", "较不宜"],
+        "_desc": "和风天气生活指数：感冒指数达到易发、运动指数不宜时提醒",
+    },
+    "chronic_weather": {
+        "copd_block_aqi": 200,
+        "copd_warn_aqi": 100,
+        "copd_warn_humidity": 85,
+        "cardio_warn_feels_like": 5,
+        "cardio_warn_temp_swing": 10,
+        "diabetes_snack_minutes": 40,
+        "_desc": "慢病与天气的交叉规则：慢阻肺/哮喘遇污染或潮湿雾霾，高血压/冠心病遇低温或大温差，帕金森或行动不便遇雨雪路滑，糖尿病外出偏久提醒带糖",
+    },
+}
+
+# 慢病对阈值的收紧系数
+CHRONIC_TIGHTEN = {
+    "高血压": {"blood_pressure": {"systolic_warn_max": 135, "systolic_block_max": 158}},
+    "冠心病": {"heart_rate": {"warn_max": 95, "block_max": 112}},
+    "心律失常": {"heart_rate": {"warn_max": 95, "block_max": 110}},
+    "慢阻肺": {"spo2": {"warn_min": 95, "block_min": 92}},
+    "哮喘": {"spo2": {"warn_min": 95, "block_min": 92}},
+    "糖尿病": {"outing_limits": {"base_duration_minutes": 40}},
+    "2型糖尿病": {"outing_limits": {"base_duration_minutes": 40}},
+    "帕金森": {"outing_limits": {"base_radius_m": 500, "base_duration_minutes": 30}},
+}
+
+# 行动能力对外出限制的收紧
+MOBILITY_TIGHTEN = {
+    "good": {"duration_ratio": 1.0, "radius_ratio": 1.0},
+    "limited": {"duration_ratio": 0.7, "radius_ratio": 0.6},
+    "poor": {"duration_ratio": 0.5, "radius_ratio": 0.4},
+}
+
+RULE_TITLES = {
+    "heart_rate": "心率",
+    "spo2": "血氧饱和度",
+    "blood_pressure": "血压",
+    "temperature": "体温",
+    "sleep": "睡眠",
+    "outing_frequency": "外出频次",
+    "time_window": "外出时段",
+    "device_battery": "设备电量",
+    "device_online": "设备在线状态",
+    "fall_history": "近期跌倒史",
+    "data_freshness": "健康数据新鲜度",
+    "weather": "天气与空气质量",
+    "health_trend": "健康趋势",
+    "health_score": "健康评分",
+    "weather_alerts": "气象预警",
+    "forecast": "外出时段预报",
+    "feels_like": "体感温度",
+    "wind": "风力",
+    "sun_uv": "紫外线与能见度",
+    "life_indices": "生活指数",
+    "chronic_weather": "慢病与天气",
+    "outing_limits": "外出限制基准",
+}
+
+
+# 阈值字段的中文名，供后台展示（同名字段在不同规则下含义一致）
+FIELD_LABELS = {
+    "warn_min": "提醒下限",
+    "warn_max": "提醒上限",
+    "block_min": "禁止下限",
+    "block_max": "禁止上限",
+    "systolic_warn_max": "收缩压提醒上限",
+    "systolic_block_max": "收缩压禁止上限",
+    "systolic_warn_min": "收缩压提醒下限",
+    "systolic_block_min": "收缩压禁止下限",
+    "diastolic_warn_max": "舒张压提醒上限",
+    "diastolic_block_max": "舒张压禁止上限",
+    "warn_min_hours": "睡眠不足提醒线(小时)",
+    "max_per_day": "每日外出上限(次)",
+    "warn_per_day": "每日外出提醒线(次)",
+    "max_per_week": "每周外出上限(次)",
+    "min_interval_minutes": "两次外出最短间隔(分钟)",
+    "start": "允许外出起始时间",
+    "end": "允许外出结束时间",
+    "warn_before": "最佳时段起点",
+    "warn_after": "最佳时段终点",
+    "watch_block_min": "手表电量禁止线(%)",
+    "watch_warn_min": "手表电量提醒线(%)",
+    "dog_block_min": "机器狗电量禁止线(%)",
+    "dog_warn_min": "机器狗电量提醒线(%)",
+    "require_watch": "外出必须佩戴手表",
+    "require_dog": "外出必须有机器狗跟随",
+    "block_lookback_hours": "跌倒后禁止外出时长(小时)",
+    "warn_lookback_hours": "跌倒后提醒时长(小时)",
+    "block_max_age_minutes": "数据过旧禁止线(分钟)",
+    "warn_max_age_minutes": "数据过旧提醒线(分钟)",
+    "block_conditions": "禁止外出的天气",
+    "warn_conditions": "需要提醒的天气",
+    "block_temp_min": "禁止外出低温(℃)",
+    "block_temp_max": "禁止外出高温(℃)",
+    "warn_temp_min": "舒适温度下限(℃)",
+    "warn_temp_max": "舒适温度上限(℃)",
+    "warn_aqi": "空气质量提醒线",
+    "block_aqi": "空气质量禁止线",
+    "base_duration_minutes": "基准外出时长(分钟)",
+    "base_radius_m": "基准活动半径(米)",
+    "min_duration_minutes": "最短外出时长(分钟)",
+    "min_radius_m": "最小活动半径(米)",
+    "warn_penalty_ratio": "每条风险的收紧比例",
+    "warn_risk_score": "风险评分提醒线",
+    "block_risk_score": "风险评分禁止线",
+    "block_below": "健康评分禁止线",
+    "warn_below": "健康评分提醒线",
+    "block_colors": "拦截的预警颜色",
+    "warn_colors": "提醒的预警颜色",
+    "lookahead_buffer_minutes": "预报观察缓冲(分钟)",
+    "block_precip_prob": "拦截降水概率(%)",
+    "block_precip_mm": "拦截小时雨量(mm)",
+    "warn_precip_prob": "提醒降水概率(%)",
+    "warn_precip_mm": "提醒小时雨量(mm)",
+    "muggy_temp": "闷热提醒气温(℃)",
+    "muggy_humidity": "闷热提醒湿度(%)",
+    "block_level": "风力禁止线(级)",
+    "block_level_limited_mobility": "行动不便者风力禁止线(级)",
+    "warn_level": "风力提醒线(级)",
+    "warn_uv_index": "紫外线提醒线",
+    "uv_start": "强紫外线时段起点",
+    "uv_end": "强紫外线时段终点",
+    "warn_visibility_m": "能见度提醒线(米)",
+    "sunset_margin_minutes": "日落前应到家(分钟)",
+    "warn_cold_level": "感冒指数提醒等级",
+    "warn_sport_categories": "运动指数提醒类别",
+    "copd_block_aqi": "慢阻肺/哮喘 AQI 禁止线",
+    "copd_warn_aqi": "慢阻肺/哮喘 AQI 提醒线",
+    "copd_warn_humidity": "慢阻肺/哮喘湿度提醒线(%)",
+    "cardio_warn_feels_like": "高血压/冠心病低温提醒线(℃)",
+    "cardio_warn_temp_swing": "高血压/冠心病昼夜温差提醒线(℃)",
+    "diabetes_snack_minutes": "糖尿病带糖提醒时长(分钟)",
+}
+
+
+def deep_merge(base: dict, override: dict) -> dict:
+    merged = dict(base)
+    for key, value in override.items():
+        if isinstance(value, dict) and isinstance(merged.get(key), dict):
+            merged[key] = deep_merge(merged[key], value)
+        else:
+            merged[key] = value
+    return merged
